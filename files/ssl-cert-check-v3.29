@@ -632,7 +632,7 @@ check_file_status() {
         if [ "${ALARM}" = "TRUE" ]
         then
             send_slack "The SSL certificate for ${HOST} \"(CN: ${COMMONNAME})\" has expired!"
-            #echo "The SSL certificate for ${HOST} \"(CN: ${COMMONNAME})\" has expired!" \
+            echo "The SSL certificate for ${HOST} \"(CN: ${COMMONNAME})\" has expired!"
             #     | ${MAIL} -s "Certificate for ${HOST} \"(CN: ${COMMONNAME})\" has expired!" ${ADMIN}
         fi
 
@@ -644,7 +644,7 @@ check_file_status() {
         if [ "${ALARM}" = "TRUE" ]
         then
             send_slack "The SSL certificate for ${HOST} \"(CN: ${COMMONNAME})\" will expire on ${CERTDATE}"
-            #echo "The SSL certificate for ${HOST} \"(CN: ${COMMONNAME})\" will expire on ${CERTDATE}" \
+            echo "The SSL certificate for ${HOST} \"(CN: ${COMMONNAME})\" will expire on ${CERTDATE}"
             #     | ${MAIL} -s "Certificate for ${HOST} \"(CN: ${COMMONNAME})\" will expire in ${WARNDAYS}-days or less" ${ADMIN}
         fi
         prints ${HOST} ${PORT} "Expiring" "${CERTDATE}" "${CERTDIFF}" "${CERTISSUER}" "${COMMONNAME}" "${SERIAL}" 
