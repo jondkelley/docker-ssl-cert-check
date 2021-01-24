@@ -303,6 +303,34 @@ date2julian() {
     fi
 }
 
+send_slack() {
+    text=$1
+    slackhost=$SLACK_HOST
+    token=$SLACK_TOKEN
+    channel=$SLACK_CHANNEL
+    if [[ $token == "" ]]
+    then
+            echo "No token specified"
+            exit 1
+    fi
+    shift
+    if [[ $channel == "" ]]
+    then
+            echo "No channel specified"
+            exit 1
+    fi
+    shift
+    text=$*
+    if [[ $text == "" ]]
+    then
+            echo "No text specified"
+            exit 1
+    fi
+    escapedText=$(echo $text | sed 's/"/\"/g' | sed "s/'/\'/g" )
+    json="{\"channel\": \"#$channel\", \"text\": \"$escapedText\"}"
+    curl -s -d "payload=$json" "https://$slackhost.slack.com/services/hooks/incoming-webhook?token=$token"
+}
+
 #############################################################################
 # Purpose: Convert a string month into an integer representation
 # Arguments:
@@ -603,8 +631,9 @@ check_file_status() {
     then
         if [ "${ALARM}" = "TRUE" ]
         then
-            echo "The SSL certificate for ${HOST} \"(CN: ${COMMONNAME})\" has expired!" \
-                 | ${MAIL} -s "Certificate for ${HOST} \"(CN: ${COMMONNAME})\" has expired!" ${ADMIN}
+            send_slack "The SSL certificate for ${HOST} \"(CN: ${COMMONNAME})\" has expired!"
+            #echo "The SSL certificate for ${HOST} \"(CN: ${COMMONNAME})\" has expired!" \
+            #     | ${MAIL} -s "Certificate for ${HOST} \"(CN: ${COMMONNAME})\" has expired!" ${ADMIN}
         fi
 
         prints ${HOST} ${PORT} "Expired" "${CERTDATE}" "${CERTDIFF}" "${CERTISSUER}" "${COMMONNAME}" "${SERIAL}"
@@ -614,8 +643,9 @@ check_file_status() {
     then
         if [ "${ALARM}" = "TRUE" ]
         then
-            echo "The SSL certificate for ${HOST} \"(CN: ${COMMONNAME})\" will expire on ${CERTDATE}" \
-                 | ${MAIL} -s "Certificate for ${HOST} \"(CN: ${COMMONNAME})\" will expire in ${WARNDAYS}-days or less" ${ADMIN}
+            send_slack "The SSL certificate for ${HOST} \"(CN: ${COMMONNAME})\" will expire on ${CERTDATE}"
+            #echo "The SSL certificate for ${HOST} \"(CN: ${COMMONNAME})\" will expire on ${CERTDATE}" \
+            #     | ${MAIL} -s "Certificate for ${HOST} \"(CN: ${COMMONNAME})\" will expire in ${WARNDAYS}-days or less" ${ADMIN}
         fi
         prints ${HOST} ${PORT} "Expiring" "${CERTDATE}" "${CERTDIFF}" "${CERTISSUER}" "${COMMONNAME}" "${SERIAL}" 
         RETCODE=1
